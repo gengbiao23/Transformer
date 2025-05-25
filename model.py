@@ -1,16 +1,33 @@
-# 这是一个示例 Python 脚本。
+import torch
+from torch import nn
+import matplotlib.pyplot as plt
+"""
+    input shape [batch, seq_len, d_model]
+"""
 
-# 按 Shift+F10 执行或将其替换为您的代码。
-# 按 双击 Shift 在所有地方搜索类、文件、工具窗口、操作和设置。
+class PositionEncoding(nn.Module):
+    def __init__(self, d_model, max_seq_len=512):
+        super().__init__()
 
+        # position encoding shape 应该和输入的shape一致， shape [max_seq_len, 1]
+        position = torch.arange(0, max_seq_len).unsqueeze(1)
+        item  = 1/10000 ** (torch.arange(0, d_model, 2))
 
-def print_hi(name):
-    # 在下面的代码行中使用断点来调试脚本。
-    print(f'Hi, {name}')  # 按 Ctrl+F8 切换断点。
+        tmp_pos = position * item
+        pe = torch.zeros(max_seq_len, d_model)
 
+        pe[:,0::2] = torch.sin(tmp_pos)
+        pe[:,1::2] = torch.cos(tmp_pos)
 
-# 按装订区域中的绿色按钮以运行脚本。
+        plt.matshow(pe)
+        plt.show()
+
+        pe = pe.unsqueeze(0)
+        self.register_buffer('pe',pe, False)
+    def forward(self, x):
+        batch, seq_len, d_model = x.shape
+        pe = self.pe
+        return x + pe[:,:seq_len,:]
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# 访问 https://www.jetbrains.com/help/pycharm/ 获取 PyCharm 帮助
+    PositionEncoding(512, 100)
