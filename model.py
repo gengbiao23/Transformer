@@ -11,7 +11,7 @@ class PositionEncoding(nn.Module):
 
         # position encoding shape 应该和输入的shape一致， shape [max_seq_len, 1]
         position = torch.arange(0, max_seq_len).unsqueeze(1)
-        item  = 1/10000 ** (torch.arange(0, d_model, 2))
+        item  = 1/10000 ** (torch.arange(0, d_model, 2)/d_model)
 
         tmp_pos = position * item
         pe = torch.zeros(max_seq_len, d_model)
@@ -28,6 +28,7 @@ class PositionEncoding(nn.Module):
         batch, seq_len, d_model = x.shape
         pe = self.pe
         return x + pe[:,:seq_len,:]
+
 
 if __name__ == '__main__':
     PositionEncoding(512, 100)
